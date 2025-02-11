@@ -15,14 +15,14 @@ lexers=ToDo
 section=commands
 caption=Plain Tasks\New
 method=plain_tasks_new
-hotkey=Shift+Alt+I
+hotkey=Shift+Ctrl+I
 
 [item4]
 section=commands
 caption=Plain Tasks\Complete
 method=plain_tasks_complete
 lexers=ToDo
-hotkey=Shift+Alt+D
+hotkey=Shift+Ctrl+D
 
 [item5]
 section=commands
@@ -36,7 +36,7 @@ section=commands
 caption=Plain Tasks\Archive
 method=plain_tasks_archive
 lexers=ToDo
-hotkey=Shift+Alt+A
+hotkey=Shift+Ctrl+A
 
 [item10]
 section=commands
