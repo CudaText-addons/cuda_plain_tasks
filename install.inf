@@ -15,14 +15,14 @@ lexers=ToDo
 section=commands
 caption=Plain Tasks\New
 method=plain_tasks_new
-hotkey=Ctrl+I
+hotkey=Shift+Alt+I
 
 [item4]
 section=commands
 caption=Plain Tasks\Complete
 method=plain_tasks_complete
 lexers=ToDo
-hotkey=Ctrl+D
+hotkey=Shift+Alt+D
 
 [item5]
 section=commands
