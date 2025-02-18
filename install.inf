@@ -3,7 +3,7 @@ title=Plain Tasks
 desc=ToDo-list plugin for CudaText
 type=cudatext-plugin
 subdir=cuda_plain_tasks
-homepage=https://github.com/OlehL/cuda_plain_tasks
+homepage=https://github.com/CudaText-addons/cuda_plain_tasks
 
 [item1]
 section=events
