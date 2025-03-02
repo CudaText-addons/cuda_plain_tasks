@@ -273,14 +273,14 @@ class Command:
             line = ct.ed.get_text_line(md).strip()
             t = ''.join(['\n', self.indent()*offset, line, self.cfg.space_before_tag, project])
             ct.ed.insert(x, archivepos, t)
-        for rm, _ in to_move:
+        for rm, ___ in to_move:
             ct.ed.delete(0, rm, 0, rm+1)
 
     # @dbg.snoop()
     def on_key(self, ed_self, code, state):
         """Insert args for function under cursor"""
         if code == 9 and state == '':
-            x0, y0, _, y1 = ct.ed.get_carets()[0]
+            x0, y0, ___, y1 = ct.ed.get_carets()[0]
             if not any([y0 == y1, y1 == -1]):
                 return
             line = ct.ed.get_text_line(y0)
