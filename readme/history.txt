@@ -1,3 +1,5 @@
+2025.03.02
++ add: support for translation (patch by Markus F.)
 
 2022.10.04
 - fix: commands 'Complete'/'Cancel' did not work when options for bullets were set to '[ ]', '[x]', '[-]'
