@@ -1,11 +1,13 @@
-﻿import os
-import re
-import sys
+﻿import re
 import cudatext as ct
+
+from cudax_lib import get_translation
+_ = get_translation(__file__)  # i18n
 
 from .setting import Setting
 from .utils import get_indent, Parser, Date
 from .utils import get_word_under_cursor
+from .utils import TAGS  # to enable translations of @<tags> (Markus_F)
 
 # from .dev import dbg
 # dbg.disable()
@@ -14,14 +16,14 @@ MYLEXER = 'ToDo'
 BREAKLINE = '＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿'
 WORD_SEPS = '\t.,'
 SNIPPETS = {
-            'c': '@critical',
-            'h': '@high',
-            'l': '@low',
-            't': '@today',
-            's': '@started%d',
-            'tg': '@toggle%d',
-            'cr': '@created%d',
-            }
+    'c': _('@critical'),
+    'h': _('@high'),
+    'l': _('@low'),
+    't': _('@today'),
+    's': TAGS.get('started') + '%d',
+    'tg': TAGS.get('toggle') + '%d',
+    'cr': TAGS.get('created') + '%d',
+}
 
 
 class Command:
@@ -33,9 +35,9 @@ class Command:
         self.date = Date()
 
         if MYLEXER not in ct.lexer_proc(ct.LEXER_GET_LEXERS, ''):
-            ct.msg_box('Plugin "Plain Tasks" could not find it\'s required lexer ToDo.'+
-                ' Please install this lexer from "Plugins / Addon Manager / Install" and restart CudaText.',
-                ct.MB_OK+ct.MB_ICONERROR)
+            ct.msg_box(_('Plugin "Plain Tasks" could not find its required lexer ToDo. Please install '
+                         'this lexer from "Plugins / Addon Manager / Install" and restart CudaText.'),
+                       ct.MB_OK+ct.MB_ICONERROR)
 
     def change_cfg(self):
         self.cfg.config()
@@ -55,14 +57,14 @@ class Command:
         carets = ct.ed.get_carets()
         x0, y0, x1, y1 = carets[0]
         if y1 < 0:
-            return (y0, y0)
+            return y0, y0
         if (y0, x0) > (y1, x1):
             x0, y0, x1, y1 = x1, y1, x0, y0
         if x1 == 0:
             y1 -= 1
-        return (y0, y1)
+        return y0, y1
 
-    def make_tag_calc_time_for_task(self, line, iscomplete=True):
+    def make_tag_calc_time_for_task(self, line: str, iscomplete=True):
         if self.parser.has_tag_started(line):
             _started = self.parser.get_tag_started_date(line)
         else:
@@ -71,10 +73,11 @@ class Command:
                                                   self.parser.get_tag_toggle_dates(line),
                                                   self.cfg.date_format)
         if _date:
-            return '@lasted{}'.format(_date) if iscomplete else '@wasted{}'.format(_date)
+            return f"{TAGS.get('lasted') if iscomplete else TAGS.get('wasted')}{_date}"
+        return ''
 
     def make_tag_with_date(self, tag):
-        """create @tag(date tznow)"""
+        """Create @tag(date tznow)"""
         tag = tag if self.cfg.done_tag else ''
         date = self.date.datenow(self.cfg.date_format) if self.cfg.done_date else ''
         return ''.join([tag, date])
@@ -86,7 +89,7 @@ class Command:
         else:
             return '\t'
 
-    def offset(self, line):
+    def offset(self, line: str) -> int:
         start_space = self.parser.get_start_space(line)
         tab_size = ' '*ct.ed.get_prop(ct.PROP_TAB_SIZE)
         return len(start_space.replace('\t', tab_size))
@@ -112,7 +115,7 @@ class Command:
                     if self.parser.isheader(line) or self.parser.isseparator(line):
                         offset = self.indent()
                     if self.cfg.add_created_tag:
-                        created_tag = self.cfg.space_before_tag + self.make_tag_with_date('@created')
+                        created_tag = self.cfg.space_before_tag + self.make_tag_with_date(_('@created'))
                     else:
                         created_tag = ''
 
@@ -243,7 +246,7 @@ class Command:
                         project.append((self.parser.get_header(line), lv))
                         level = lv
             project.sort(key=lambda k: k[1])
-            return '@project({})'.format(' / '.join([p[0] for p in project]))
+            return _('@project({})').format(' / '.join([p[0] for p in project]))
 
         first, last = self.get_selection_rows()
         to_move = []
@@ -275,7 +278,7 @@ class Command:
 
     # @dbg.snoop()
     def on_key(self, ed_self, code, state):
-        """insert args for function under cursor"""
+        """Insert args for function under cursor"""
         if code == 9 and state == '':
             x0, y0, _, y1 = ct.ed.get_carets()[0]
             if not any([y0 == y1, y1 == -1]):

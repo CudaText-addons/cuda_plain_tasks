@@ -2,15 +2,29 @@
 import time
 import datetime as dt
 
+from cudax_lib import get_translation
+_ = get_translation(__file__)  # i18n
+
+# Tags are not hardcoded to enable their translations. (Markus_F)
+TAGS = {
+    'done': _('@done'),
+    'cancelled': _('@cancelled'),
+    'lasted': _('@lasted'),
+    'wasted': _('@wasted'),
+    'started': _('@started'),
+    'toggle': _('@toggle'),
+    'created': _('@created'),
+}
+
 
 def msg(s, level=0):
     plug = 'cuda_plain_tasks'
     if level == 0:
         print('{}: {}'.format(plug, s))
     elif level == 1:
-        print('{} WARNING: {}'.format(plug, s))
+        print(_('{} WARNING: {}').format(plug, s))
     elif level == 2:
-        print('{} ERROR: {}'.format(plug, s))
+        print(_('{} ERROR: {}').format(plug, s))
 
 
 def get_indent(line):
@@ -24,12 +38,12 @@ def get_indent(line):
 
 def get_word_under_cursor(line, x, seps='.,:-!<>()[]{}\'"\t\n\r'):
     """
-    get current word under cursor position
+    Get current word under cursor position.
         line str: line of text
         x int: position cursor in line(0-based)
         [seps] str: chars as separators for words
         return (word, (start, end, local position cursor in word))
-        """
+    """
     if not 0 <= x <= len(line):
         return
     if seps:
@@ -44,7 +58,7 @@ def get_word_under_cursor(line, x, seps='.,:-!<>()[]{}\'"\t\n\r'):
     end = s.find(' ', x)
     end = len(line) if end == -1 else end
     word = line[start:end]
-    return (word, (start, end, max(x-start, 0)))
+    return word, (start, end, max(x - start, 0))
 
 
 class Parser:
@@ -54,13 +68,13 @@ class Parser:
         self.re_item_bullet_open = re.compile(r'^\s*(\-|❍|❑|■|□|☐|▪|▫|–|—|≡|→|›|\[\s\]|\[\])')
         self.re_item_bullet_done = re.compile(r'^\s*(\+|✓|✔|☑|√|\[x\]|\[\+\])')
         self.re_item_bullet_cancel = re.compile(r'^\s*(x|✘|\[\-\])')
-        self.re_tag_done = re.compile(r'\s*@done(\([\w,\.:\-\/ @]*\))?')
-        self.re_tag_cancel = re.compile(r'\s*@cancelled(\([\w,\.:\-\/ @]*\))?')
-        self.re_tag_lasted = re.compile(r'\s*@lasted(\([\w,\.:\-\/ @]*\))?')
-        self.re_tag_wasted = re.compile(r'\s*@wasted(\([\w,\.:\-\/ @]*\))?')
-        self.re_tag_created = re.compile(r'\s*@created(\([\w,\.:\-\/ @]*\))?')
-        self.re_tag_started = re.compile(r'\s*@started(\([\w,\.:\-\/ @]*\))?')
-        self.re_tag_toggle = re.compile(r'\s*@toggle(\([\w,\.:\-\/ @]*\))?')
+        self.re_tag_done = re.compile(fr'\s*{TAGS.get("done")}(\([\w,.:\-/ @]*\))?')
+        self.re_tag_cancel = re.compile(fr'\s*{TAGS.get("cancelled")}(\([\w,.:\-/ @]*\))?')
+        self.re_tag_lasted = re.compile(fr'\s*{TAGS.get("lasted")}(\([\w,.:\-/ @]*\))?')
+        self.re_tag_wasted = re.compile(fr'\s{TAGS.get("wasted")}(\([\w,.:\-/ @]*\))?')
+        self.re_tag_created = re.compile(fr'\s*{TAGS.get("created")}(\([\w,.:\-/ @]*\))?')
+        self.re_tag_started = re.compile(fr'\s*{TAGS.get("started")}(\([\w,.:\-/ @]*\))?')
+        self.re_tag_toggle = re.compile(fr'\s*{TAGS.get("toggle")}(\([\w,.:\-/ @]*\))?')
         self.re_start_space = re.compile(r'^\s*')
 
     @staticmethod
@@ -102,7 +116,7 @@ class Parser:
     def getgroup(res, n=0):
         try:
             return res.group(n)
-        except Exception:
+        except ReferenceError:
             return ''
 
     def get_tag_done(self, line):
@@ -191,9 +205,9 @@ class Date:
 
         res = []
         if days > 1:
-            res.append('{}days'.format(days))
+            res.append(_('{}days').format(days))
         elif days == 1:
-            res.append('1day')
+            res.append(_('1day'))
         if hours > 0:
             zero = '0' if minutes < 10 else ''
             res.append('{}:{}{}'.format(hours, zero, minutes))
